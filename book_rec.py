@@ -2,7 +2,21 @@
 import pandas as pd
 import numpy as np
 
+##
+# NOTE: are correlations with low rating useful? Might be: for people who hated LotR can be recommended books liked by other people who hated LotR. 
+#       That is quite a broad scope. Can the results be any useful? Maybe for readers of fantasy: 
+#       people who like fantasy but hate Tolkien might like Pratchett or Sapkowski, but people who hate Tolkien because they hate fantasy in general, 
+#       probably form a very diverse group (readers of high literature, crime fiction, romance, etc.).
+#
+# General idea:
+# - We are compiting data for recommendation of books similar to The Fellowship of the Ring
+# - similarity factors:
+#  - 
+# #
+
 # load ratings
+# NOTE: why is not everything utf8? It's the 21st century...
+# @TODO: check that the files are actually encoded in cp1251.
 ratings = pd.read_csv('Downloads/BX-Book-Ratings.csv', encoding='cp1251', sep=';')
 ratings = ratings[ratings['Book-Rating']!=0]
 
@@ -11,8 +25,11 @@ books = pd.read_csv('Downloads/BX-Books.csv',  encoding='cp1251', sep=';',on_bad
 
 #users_ratigs = pd.merge(ratings, users, on=['User-ID'])
 dataset = pd.merge(ratings, books, on=['ISBN'])
+# @TODO: normalized case. Should we normalize accents as well?
 dataset_lowercase=dataset.apply(lambda x: x.str.lower() if(x.dtype == 'object') else x)
 
+# @TODO: 'tolkien' is a poor criterion. Might match other authors with 'tolkien' in their name.
+# @TODO: match with j.r.r. tolkien, convert to numeric id, then match with that id?
 tolkien_readers = dataset_lowercase['User-ID'][(dataset_lowercase['Book-Title']=='the fellowship of the ring (the lord of the rings, part 1)') & (dataset_lowercase['Book-Author'].str.contains("tolkien"))]
 tolkien_readers = tolkien_readers.tolist()
 tolkien_readers = np.unique(tolkien_readers)

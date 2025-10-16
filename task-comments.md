@@ -12,5 +12,8 @@
 - @STUDY pivot tables
 - Thoughts on lookups of book names: should we work with int32 bookID instead of book name? I think so, even with SIMD strcmp, lookup of integers should be faster. Also, for large datasets, length of strings may play a role: more integers fit in L1 cache (up to 80KB per core on Intel Xeon) so int lookup should scale better.
 Cool, there's also pandas acceleration available on Nvidia GPUs! (https://developer.nvidia.com/blog/pandas-dataframe-tutorial-beginners-guide-to-gpu-accelerated-dataframes-in-python/)
+- Note on the usefulness of correlation:  are correlations with low rating useful? Might be: for people who hated LotR can be recommended books liked by other people who hated LotR. That is quite a broad scope. Can the results be any useful? Maybe for readers of fantasy: 
+people who like fantasy but hate Tolkien might like Pratchett or Sapkowski, but people who hate Tolkien because they hate fantasy in general, 
+probably form a very diverse group (readers of high literature, crime fiction, romance, etc.).
 
 - @TODO afternoon: look into functions tolist() vs. to_list() etc.
