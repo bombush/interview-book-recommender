@@ -15,5 +15,9 @@ Cool, there's also pandas acceleration available on Nvidia GPUs! (https://develo
 - Note on the usefulness of correlation:  are correlations with low rating useful? Might be: for people who hated LotR can be recommended books liked by other people who hated LotR. That is quite a broad scope. Can the results be any useful? Maybe for readers of fantasy: 
 people who like fantasy but hate Tolkien might like Pratchett or Sapkowski, but people who hate Tolkien because they hate fantasy in general, 
 probably form a very diverse group (readers of high literature, crime fiction, romance, etc.).
+- Note on duplicates: Multiple editions of the same books can be released with different ISBN. Title of the book can have subtle differences between editions but are conceptually the same book. Can we take that into account smh without resorting to manually annotating possible duplicates?
+- How are pivot tables implemented under the hood?
 
 - @TODO afternoon: look into functions tolist() vs. to_list() etc.
+- @TODO afternoon: simple code: downloading datasets, frontend maybe etc. 
+- @TODO afternoon: read about recommendation engines on Medium: [insert link here]
