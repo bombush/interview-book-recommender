@@ -33,6 +33,7 @@ ratings_data_raw = books_of_tolkien_readers[['User-ID', 'Book-Rating', 'Book-Tit
 ratings_data_raw_nodup = ratings_data_raw.groupby(['User-ID', 'Book-Title'])['Book-Rating'].mean()
 
 # reset index to see User-ID in every row
+# @TODO: why reset index?
 ratings_data_raw_nodup = ratings_data_raw_nodup.to_frame().reset_index()
 
 dataset_for_corr = ratings_data_raw_nodup.pivot(index='User-ID', columns='Book-Title', values='Book-Rating')
@@ -46,6 +47,8 @@ worst_list = []
 for LoR_book in LoR_list:
     
     #Take out the Lord of the Rings selected book from correlation dataframe
+    ## @TODO: optimize: drop 
+    ## @TODO: why copy on each iteration? Can't we just skip the book (branch predictor cache miss possible, but avoids memory reallocation). Look into the docs of pandas how copy is implemented. Is it COW?
     dataset_of_other_books = dataset_for_corr.copy(deep=False)
     dataset_of_other_books.drop([LoR_book], axis=1, inplace=True)
       
