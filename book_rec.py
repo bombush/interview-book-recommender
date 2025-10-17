@@ -17,11 +17,11 @@ import numpy as np
 # load ratings
 # NOTE: why is not everything utf8? It's the 21st century...
 # @TODO: check that the files are actually encoded in cp1251.
-ratings = pd.read_csv('Downloads/BX-Book-Ratings.csv', encoding='cp1251', sep=';')
+ratings = pd.read_csv('Downloads/Ratings.csv', encoding='utf8', sep=',')
 ratings = ratings[ratings['Book-Rating']!=0]
 
 # load books
-books = pd.read_csv('Downloads/BX-Books.csv',  encoding='cp1251', sep=';',on_bad_lines='warn')
+books = pd.read_csv('Downloads/Books.csv',  encoding='utf8', sep=',',on_bad_lines='warn')
 
 #users_ratigs = pd.merge(ratings, users, on=['User-ID'])
 dataset = pd.merge(ratings, books, on=['ISBN'])
