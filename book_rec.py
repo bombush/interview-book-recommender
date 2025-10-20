@@ -2,6 +2,8 @@
 import pandas as pd
 import numpy as np
 
+import loader as ld
+
 ##
 # NOTE: are correlations with low rating useful? Might be: for people who hated LotR can be recommended books liked by other people who hated LotR. 
 #       That is quite a broad scope. Can the results be any useful? Maybe for readers of fantasy: 
@@ -17,11 +19,11 @@ import numpy as np
 # load ratings
 # NOTE: why is not everything utf8? It's the 21st century...
 # @TODO: check that the files are actually encoded in cp1251.
-ratings = pd.read_csv('Downloads/Ratings.csv', encoding='utf8', sep=',')
+ratings = ld.load_ratings()
 ratings = ratings[ratings['Book-Rating']!=0]
 
 # load books
-books = pd.read_csv('Downloads/Books.csv',  encoding='utf8', sep=',',on_bad_lines='warn')
+books = ld.load_books()
 
 #users_ratigs = pd.merge(ratings, users, on=['User-ID'])
 dataset = pd.merge(ratings, books, on=['ISBN'])
@@ -84,9 +86,18 @@ for LoR_book in LoR_list:
 
     # corr computation
     for book_title in list(dataset_of_other_books.columns.values):
+        #print(book_title)
+        #print(type(book_title))
         book_titles.append(book_title)
         # NOTE: find similarity?
         correlations.append(dataset_for_corr[LoR_book].corr(dataset_of_other_books[book_title]))
+        print(ratings_data_raw['Book-Title']==book_title)
+        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title])
+        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']))
+        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']).mean())
+        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']).mean(axis='Book-Rating',numeric_only=True))
+        exit(0)
+
         tab=(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']).mean())
         avgrating.append(tab['Book-Rating'].min())
     # final dataframe of all correlation of each book   
