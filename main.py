@@ -19,7 +19,7 @@ def search_books_by_title(books: pd.DataFrame, search_term: str) -> pd.DataFrame
 def display_books(books: pd.DataFrame, columns: list[str] = None):
     """Display books in a readable format."""
     if columns is None:
-        columns = ['Book-Title', 'Book-Author']
+        columns = ['ISBN', 'Book-Title', 'Book-Author']
     
     pd.set_option("display.max_colwidth", None)
     pd.set_option("display.max_rows", None)

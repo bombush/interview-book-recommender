@@ -35,6 +35,10 @@ dataset_lowercase=dataset.apply(lambda x: x.str.lower() if(x.dtype == 'object') 
 # @TODO: match with j.r.r. tolkien, convert to numeric id, then match with that id?
 # NOTE: I see, tolkien_readers are actually not readers of Tolkien, but readers of the Fellowship of the Ring, written by Tolkien. confusing var name :)
 # @TODO: we should be working with book ids already here (not strictly needed for CLI app, but good for migration to web-based frontend later)
+# @TODO: use different logic for selecting the book 
+# @NOTE: I see, there are multiple books with the same title and author. We are matching on users from multipele editions of the same book which makes it more precise. 
+# @NOTE: data quality: human-curated dataset would have unique book ids for each book edition, and a separate table mapping editions to works (e.g. work id mapping).
+# @NOTE: possible direction: compute relations of books (grouping by lowercase title and author name seems safe as a naive approach), then use work ids for recommendation.
 tolkien_readers = dataset_lowercase['User-ID'][(dataset_lowercase['Book-Title']=='the fellowship of the ring (the lord of the rings, part 1)') & (dataset_lowercase['Book-Author'].str.contains("tolkien"))]
 tolkien_readers = tolkien_readers.tolist()
 tolkien_readers = np.unique(tolkien_readers)
@@ -49,6 +53,8 @@ number_of_rating_per_book = books_of_tolkien_readers.groupby(['Book-Title']).agg
 books_to_compare = number_of_rating_per_book['Book-Title'][number_of_rating_per_book['User-ID'] >= 8]
 books_to_compare = books_to_compare.tolist()
 
+
+# @NOTE: isin is fast: vectorized lookup in a hashset
 ratings_data_raw = books_of_tolkien_readers[['User-ID', 'Book-Rating', 'Book-Title']][books_of_tolkien_readers['Book-Title'].isin(books_to_compare)]
 
 # group by User and Book and compute mean
@@ -86,6 +92,7 @@ for LoR_book in LoR_list:
     avgrating = []
 
     # corr computation
+    # @TODO: can I parallelize this instead of a forloop?
     for book_title in list(dataset_of_other_books.columns.values):
         #print(book_title)
         #print(type(book_title))

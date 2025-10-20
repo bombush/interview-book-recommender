@@ -59,3 +59,23 @@ Now I need to figure out why correlation requires wide-form data (in other words
 ### 2024-10-20
 
 I can parallelize processing using Dask
+
+Careful about chained indexing
+```
+4. Chained indexing warning
+df[df["A"] > 1]["B"] = 10  # ⚠ SettingWithCopyWarning
+
+
+Here, df[df["A"] > 1] creates a new DataFrame.
+
+Modifying "B" might not affect the original df.
+
+Best practice:
+
+df.loc[df["A"] > 1, "B"] = 10
+
+
+.loc modifies the original safely.
+```
+
+
