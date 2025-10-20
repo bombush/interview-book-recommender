@@ -28,6 +28,7 @@ books = ld.load_books()
 #users_ratigs = pd.merge(ratings, users, on=['User-ID'])
 dataset = pd.merge(ratings, books, on=['ISBN'])
 # @TODO: normalized case. Should we normalize accents as well?
+# @TODO: use vectorized str.lower call instead of apply+lambda
 dataset_lowercase=dataset.apply(lambda x: x.str.lower() if(x.dtype == 'object') else x)
 
 # @TODO: 'tolkien' is a poor criterion. Might match other authors with 'tolkien' in their name.
