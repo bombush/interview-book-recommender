@@ -74,9 +74,9 @@ def main():
             continue
         
         # Get and display similar books
-        book_isbn = found_books.iloc[0]['ISBN']
-        similar_books = get_similar_books(book_isbn)
-        
+        book_index = found_books.index[0]
+        similar_books = get_similar_books(book_index)
+
         if similar_books:
             print(f"\nBooks similar to '{found_books.iloc[0]['Book-Title']}':")
             for book in sorted(similar_books):
