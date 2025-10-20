@@ -1,4 +1,4 @@
-2025-10-16
+### 2025-10-16
 - setting up the venv
 - looking for basic syntax errors
 - learning about how indexers work in Pandas. Looking into under-the-hood implementation of Pandas ``DataFrames``.
@@ -21,3 +21,41 @@ probably form a very diverse group (readers of high literature, crime fiction, r
 - @TODO afternoon: look into functions tolist() vs. to_list() etc.
 - @TODO afternoon: simple code: downloading datasets, frontend maybe etc. 
 - @TODO afternoon: read about recommendation engines on Medium: [insert link here]
+
+
+### 2025-10-17
+Oh I found out you can overload operators in Python. That makes the script lot less confusing.
+@TODO:  study groupby and other iterator objects
+@TODO: i have this: 
+```python
+print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title'])['Book-Rating'].mean()) 
+```
+@TODO:How do I add new column?
+I see... df == df returns a boolean mask usable for further filtering
+
+Series is implemented as contiguous array of values and index. Index can be hashtable (Index. Lookup in O(1)), positional lookup for sequential indices (RangeIndex O(1)) or fallback to sequential scan. Custom implementation of the lookup engine is possible as well 
+```python
+    Index._engine is a C-backed engine (libpandas) for fast lookup.
+
+It can be:
+
+Int64Engine for integers (direct positional lookup)
+
+Float64Engine for floats
+
+ObjectEngine for strings / objects (hash table)
+
+Lookup steps:
+
+_engine.get_loc(label) → returns integer position.
+
+Use that integer to fetch values[position].
+``` 
+
+TO STUDY: Each Series holds its data in a NumPy array (or an ExtensionArray for special dtypes like Categorical,
+
+Now I need to figure out why correlation requires wide-form data (in other words, why pivot() is used in the script)
+
+### 2024-10-20
+
+I can parallelize processing using Dask
