@@ -1,63 +1,88 @@
 import pandas as pd
-
-# @TODO: bring it all together
 import loader as ld
 
-# this is actually not that great way to do it, but ok for CLI app
-def user_wants_to_look_for_books():
-    yield True # no menu on first run
-
+def get_user_yes_no_input(prompt: str) -> bool:
+    """Get validated yes/no input from user."""
     while True:
-        should_retry = input("Do you want to try another book? [Y/N]")
-        if(should_retry.lower() not in ['y', 'n']):
-            print("Invalid input. Please enter Y or N.")
-            yield from user_wants_to_look_for_books()
-        yield should_retry.lower() == 'y'
+        response = input(prompt).strip().lower()
+        if response in ['y', 'n']:
+            return response == 'y'
+        print("Invalid input. Please enter Y or N.")
 
+def search_books_by_title(books: pd.DataFrame, search_term: str) -> pd.DataFrame:
+    """Search for books by title (case-insensitive)."""
+    contains_mask = books['Book-Title'].str.contains(
+        search_term, case=False, na=False, regex=False
+    )
+    return books[contains_mask]
 
-
-
-books = ld.load_books()
-main_loop = user_wants_to_look_for_books()
-while next(main_loop):
-    user_book = input("Enter title of you favorite book: ")
-    contains_mask = books['Book-Title'].str.contains(user_book, case=False, na=False, regex=False)
-    books_user_interested = books[contains_mask]
+def display_books(books: pd.DataFrame, columns: list[str] = None):
+    """Display books in a readable format."""
+    if columns is None:
+        columns = ['Book-Title', 'Book-Author']
     
-    count_user_books = len(books_user_interested)
-    if(count_user_books == 0):
+    pd.set_option("display.max_colwidth", None)
+    pd.set_option("display.max_rows", None)
+    print(books[columns])
+    pd.reset_option("display.max_colwidth")
+    pd.reset_option("display.max_rows")
+
+def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
+    """
+    Handle a single book search interaction.
+    Returns: (success, matching_books)
+    """
+    user_book = input("Enter title of your favorite book: ").strip()
+    matching_books = search_books_by_title(books, user_book)
+    
+    count = len(matching_books)
+    
+    if count == 0:
         print("No books found with that title. Please try again.")
-        continue
+        return False, pd.DataFrame()
+    
+    if count > 1:
+        print(f"\n{count} books found with that title. Please be more specific:\n")
+        display_books(matching_books)
+        return False, pd.DataFrame()
+    
+    # Exactly one book found
+    book = matching_books.iloc[0]
+    print(f"\nFound book: {book['Book-Title']} by {book['Book-Author']}")
+    return True, matching_books
 
-    if(count_user_books > 1):
-        print("Multiple books found with that title. Please be more specific:\n")
+def get_similar_books(book_isbn: str) -> list[str]:
+    """Get list of books similar to the given book."""
+    # @TODO: implement recommendation algorithm
+    return []
 
-        pd.set_option("display.max_colwidth", None)
-        pd.set_option("display.max_rows", None)
-        print(books_user_interested[['Book-Title', 'Book-Author']])
-        pd.reset_option("display.max_colwidth")
-        pd.reset_option("display.max_rows")
+def main():
+    """Main application loop."""
+    books = ld.load_books()
+    
+    first_run = True
+    while True:
+        if not first_run:
+            if not get_user_yes_no_input("\nDo you want to try another book? [Y/N]: "):
+                print("Thank you for using the book recommender!")
+                break
+        first_run = False
+        
+        success, found_books = handle_book_search(books)
+        
+        if not success:
+            continue
+        
+        # Get and display similar books
+        book_isbn = found_books.iloc[0]['ISBN']
+        similar_books = get_similar_books(book_isbn)
+        
+        if similar_books:
+            print(f"\nBooks similar to '{found_books.iloc[0]['Book-Title']}':")
+            for book in sorted(similar_books):
+                print(f"  - {book}")
+        else:
+            print("\nNo similar books found.")
 
-        continue
-
-    # exactly one book found
-    print("Found book:", books_user_interested.iloc[0]['Book-Title'], "by", books_user_interested.iloc[0]['Book-Author'])
-
-    exit(0)
-
-
-
-
-    # user_book to lowercase
-    user_book_lower = user_book.lower()
-    print("You entered:", user_book_lower)
-
-    # get similar books
-    similar_books = []  # @TODO: call the function that gets similar books
-    similar_books.sort()
-
-    print("Similar books", user_book, ":")
-
-
-    for book in similar_books:
-        print(book)
+if __name__ == "__main__":
+    main()
