@@ -94,20 +94,12 @@ for LoR_book in LoR_list:
     # corr computation
     # @TODO: can I parallelize this instead of a forloop?
     for book_title in list(dataset_of_other_books.columns.values):
-        #print(book_title)
-        #print(type(book_title))
         book_titles.append(book_title)
-        # NOTE: find similarity?
         correlations.append(dataset_for_corr[LoR_book].corr(dataset_of_other_books[book_title]))
-        print(ratings_data_raw['Book-Title']==book_title)
-        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title])
-        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']))
-        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']).mean())
-        print(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']).mean(axis='Book-Rating',numeric_only=True))
-        exit(0)
+        mean=(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title'])['Book-Rating'].mean())
+        print(mean)
+        avgrating.append(mean[book_title])
 
-        tab=(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title']).mean())
-        avgrating.append(tab['Book-Rating'].min())
     # final dataframe of all correlation of each book   
     corr_fellowship = pd.DataFrame(list(zip(book_titles, correlations, avgrating)), columns=['book','corr','avg_rating'])
     corr_fellowship.head()
@@ -116,8 +108,12 @@ for LoR_book in LoR_list:
     result_list.append(corr_fellowship.sort_values('corr', ascending = False).head(10))
     
     #worst 10 books
-    worst_list.append(corr_fellowship.sort_values('corr', ascending = False).tail(10))
+    worst_list.append(corr_fellowship.sort_values('corr', ascending = True).tail(10))
     
 print("Correlation for book:", LoR_list[0])
 #print("Average rating of LOR:", ratings_data_raw[ratings_data_raw['Book-Title']=='the fellowship of the ring (the lord of the rings, part 1'].groupby(ratings_data_raw['Book-Title']).mean()))
 rslt = result_list[0]
+print(rslt)
+print("\nWorst correlations:")
+worst = worst_list[0]
+print(worst)    
