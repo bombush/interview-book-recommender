@@ -34,7 +34,19 @@ def display_books(books: pd.DataFrame, columns: list[str] = None):
 def is_isbn(input_str: str) -> bool:
     """Check if the input string is a valid ISBN (10 or 13 digits)."""
     cleaned = input_str.replace('-', '').replace(' ', '')
-    return cleaned.isdigit() and len(cleaned) in [10, 13]
+
+    # if last character is X, drop it and check if the rest rest of the 9 characters are digits
+    # (X is used instead of 10 in ISBN-10 checksum. See https://www.isbn.org/faqs_general_questions#:~:text=Why%20do%20some%20ISBNs%20end,assign%20ISBNs%20to%20a%20publisher?)
+    if(len(cleaned) == 10):
+        if cleaned[-1].upper() == 'X':
+            return cleaned[:-1].isdigit()
+        else:
+            return cleaned.isdigit()
+    elif(len(cleaned) == 13):
+        return cleaned.isdigit()
+    else:
+        return False
+
 
 def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
     """
