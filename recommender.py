@@ -8,7 +8,18 @@ import pandas as pd
 import numpy as np
 import loader as ld
 
-def recommend(book_isbn: str, min_ratings_threshold: int = 8, top_n: int = 10) -> pd.DataFrame:
+def prepare_dataset() -> pd.DataFrame:
+      # Load data
+    ratings = ld.load_ratings()
+    ratings = ratings[ratings['Book-Rating'] != 0]
+    books = ld.load_books()
+    
+    # Merge ratings with book information
+    dataset = pd.merge(ratings, books, on=['ISBN'])
+    dataset_lowercase = dataset.apply(lambda x: x.str.lower() if x.dtype == 'object' else x)
+    return dataset_lowercase
+
+def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8) -> pd.DataFrame:
     """
     Recommend books similar to the given book based on user rating correlations.
     
@@ -24,14 +35,7 @@ def recommend(book_isbn: str, min_ratings_threshold: int = 8, top_n: int = 10) -
         DataFrame with columns ['book', 'corr', 'avg_rating'] sorted by correlation (descending)
         Returns empty DataFrame if book not found or insufficient data
     """
-    # Load data
-    ratings = ld.load_ratings()
-    ratings = ratings[ratings['Book-Rating'] != 0]
-    books = ld.load_books()
-    
-    # Merge ratings with book information
-    dataset = pd.merge(ratings, books, on=['ISBN'])
-    dataset_lowercase = dataset.apply(lambda x: x.str.lower() if x.dtype == 'object' else x)
+    dataset_lowercase = prepare_dataset()
     
     # Find the book by ISBN
     target_book = dataset_lowercase[dataset_lowercase['isbn'] == book_isbn.lower()]
@@ -43,8 +47,8 @@ def recommend(book_isbn: str, min_ratings_threshold: int = 8, top_n: int = 10) -
     # Get the book title (use first match if multiple editions, but ISBN should be unique)
     target_book_title = target_book.iloc[0]['Book-Title']
 
-    # We'll use book title for lookup in dataset from now on as a naive way to take into account multiple editions of the same book
-    
+    # @TODO: try to find book by BookTitle and Author if ISBN not found
+
     # Find all users who rated this book
     book_readers = dataset_lowercase['User-ID'][dataset_lowercase['isbn'] == book_isbn.lower()]
     book_readers = book_readers.tolist()
@@ -117,6 +121,5 @@ def recommend(book_isbn: str, min_ratings_threshold: int = 8, top_n: int = 10) -
     
     # Remove rows with NaN correlations and sort
     corr_df = corr_df.dropna(subset=['corr'])
-    result = corr_df.sort_values('corr', ascending=False).head(top_n)
     
-    return result
+    return corr_df
