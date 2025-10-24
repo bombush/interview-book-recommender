@@ -16,6 +16,10 @@ def search_books_by_title(books: pd.DataFrame, search_term: str) -> pd.DataFrame
     )
     return books[contains_mask]
 
+def search_books_by_isbn(books: pd.DataFrame, isbn: str) -> pd.DataFrame:
+    """Search for books by ISBN."""
+    return books[books['ISBN'] == isbn]
+
 def display_books(books: pd.DataFrame, columns: list[str] = None):
     """Display books in a readable format."""
     if columns is None:
@@ -27,13 +31,21 @@ def display_books(books: pd.DataFrame, columns: list[str] = None):
     pd.reset_option("display.max_colwidth")
     pd.reset_option("display.max_rows")
 
+def is_isbn(input_str: str) -> bool:
+    """Check if the input string is a valid ISBN (10 or 13 digits)."""
+    cleaned = input_str.replace('-', '').replace(' ', '')
+    return cleaned.isdigit() and len(cleaned) in [10, 13]
+
 def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
     """
     Handle a single book search interaction.
     Returns: (success, matching_books)
     """
-    user_book = input("Enter title of your favorite book: ").strip()
-    matching_books = search_books_by_title(books, user_book)
+    user_book = input("Enter title or ISBN of your favorite book: ").strip()
+    if is_isbn(user_book):
+        matching_books = search_books_by_isbn(books, user_book)
+    else:
+        matching_books = search_books_by_title(books, user_book)
     
     count = len(matching_books)
     
@@ -48,7 +60,7 @@ def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
     
     # Exactly one book found
     book = matching_books.iloc[0]
-    print(f"\nFound book: {book['Book-Title']} by {book['Book-Author']}")
+    display_books(matching_books)
     return True, matching_books
 
 def get_similar_books(book_isbn: str) -> list[str]:
