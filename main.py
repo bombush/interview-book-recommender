@@ -1,6 +1,8 @@
 import pandas as pd
 import loader as ld
 
+import recommender as rec
+
 def get_user_yes_no_input(prompt: str) -> bool:
     """Get validated yes/no input from user."""
     while True:
@@ -71,14 +73,17 @@ def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
         return False, pd.DataFrame()
     
     # Exactly one book found
-    book = matching_books.iloc[0]
     display_books(matching_books)
     return True, matching_books
 
-def get_similar_books(book_isbn: str) -> list[str]:
+# @TODO: why is this a series? Should be a DataFrame with one row.
+def get_similar_books(book: pd.Series) -> pd.DataFrame:
     """Get list of books similar to the given book."""
-    # @TODO: implement recommendation algorithm
-    return []
+    print(type(book))
+    print(book)
+    book_isbn = book['ISBN']
+    similar_books = rec.find_correlated_books_by_isbn(book_isbn).sort_values('corr', ascending=False).head(10)
+    return similar_books
 
 def main():
     """Main application loop."""
@@ -98,15 +103,13 @@ def main():
             continue
         
         # Get and display similar books
-        book_index = found_books.index[0]
+        book_index = found_books.iloc[0]
         similar_books = get_similar_books(book_index)
 
-        if similar_books:
+        if not similar_books.empty:
             print(f"\nBooks similar to '{found_books.iloc[0]['Book-Title']}':")
-            for book in sorted(similar_books):
-                print(f"  - {book}")
+            print(similar_books)
         else:
             print("\nNo similar books found.")
-
 if __name__ == "__main__":
     main()

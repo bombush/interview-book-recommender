@@ -38,7 +38,7 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     dataset_lowercase = prepare_dataset()
     
     # Find the book by ISBN
-    target_book = dataset_lowercase[dataset_lowercase['isbn'] == book_isbn.lower()]
+    target_book = dataset_lowercase[dataset_lowercase['ISBN'] == book_isbn.lower()]
     
     if target_book.empty:
         print(f"Book with ISBN {book_isbn} not found in dataset.")
@@ -50,7 +50,7 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     # @TODO: try to find book by BookTitle and Author if ISBN not found
 
     # Find all users who rated this book
-    book_readers = dataset_lowercase['User-ID'][dataset_lowercase['isbn'] == book_isbn.lower()]
+    book_readers = dataset_lowercase['User-ID'][dataset_lowercase['ISBN'] == book_isbn.lower()]
     book_readers = book_readers.tolist()
     book_readers = np.unique(book_readers)
     
