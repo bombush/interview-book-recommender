@@ -12,8 +12,7 @@ import loader as ld
 #
 # General idea:
 # - We are compiting data for recommendation of books similar to The Fellowship of the Ring
-# - similarity factors:
-#  - 
+# - corellate ratings given by users to a book with other books rated by the same users
 # #
 
 # load ratings
@@ -97,7 +96,6 @@ for LoR_book in LoR_list:
         book_titles.append(book_title)
         correlations.append(dataset_for_corr[LoR_book].corr(dataset_of_other_books[book_title]))
         mean=(ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title'])['Book-Rating'].mean())
-        print(mean)
         avgrating.append(mean[book_title])
 
     # final dataframe of all correlation of each book   
@@ -108,10 +106,9 @@ for LoR_book in LoR_list:
     result_list.append(corr_fellowship.sort_values('corr', ascending = False).head(10))
     
     #worst 10 books
-    worst_list.append(corr_fellowship.sort_values('corr', ascending = True).tail(10))
-    
+    worst_list.append(corr_fellowship.sort_values('corr', ascending = False).tail(10).sort_values('corr', ascending = True))
+
 print("Correlation for book:", LoR_list[0])
-#print("Average rating of LOR:", ratings_data_raw[ratings_data_raw['Book-Title']=='the fellowship of the ring (the lord of the rings, part 1'].groupby(ratings_data_raw['Book-Title']).mean()))
 rslt = result_list[0]
 print(rslt)
 print("\nWorst correlations:")
