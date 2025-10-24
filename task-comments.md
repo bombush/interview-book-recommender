@@ -78,4 +78,11 @@ df.loc[df["A"] > 1, "B"] = 10
 .loc modifies the original safely.
 ```
 
+### 2024-10-24
+TODO: for better data quality, let the users group together different editions of the same book (or maybe make it automatic?)
+
+Data quality fixes:
+- lowercase
+- unique (use ISBN for uniqueness)
+- group multiple book editions together under a "work-ID". This will need some heuristics as well as manual classification for some books
 
