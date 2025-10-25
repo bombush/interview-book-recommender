@@ -1,5 +1,6 @@
 import pandas as pd
 import loader as ld
+from typing import Optional
 
 import recommender as rec
 
@@ -22,7 +23,7 @@ def search_books_by_isbn(books: pd.DataFrame, isbn: str) -> pd.DataFrame:
     """Search for books by ISBN."""
     return books[books['ISBN'] == isbn]
 
-def display_books(books: pd.DataFrame, columns: list[str] = None):
+def display_books(books: pd.DataFrame, columns: Optional[list[str]]):
     """Display books in a readable format."""
     if columns is None:
         columns = ['ISBN', 'Book-Title', 'Book-Author']
@@ -69,11 +70,11 @@ def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
     
     if count > 1:
         print(f"\n{count} books found with that title. Please be more specific:\n")
-        display_books(matching_books)
+        display_books(matching_books, None)
         return False, pd.DataFrame()
     
     # Exactly one book found
-    display_books(matching_books)
+    display_books(matching_books, None)
     return True, matching_books
 
 # @TODO: why is this a series? Should be a DataFrame with one row.
@@ -111,5 +112,7 @@ def main():
             print(similar_books)
         else:
             print("\nNo similar books found.")
+
+
 if __name__ == "__main__":
     main()

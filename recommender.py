@@ -4,6 +4,7 @@
 # Conversion of old/book_rec_standalone.py into a general-user function.
 #
 
+from typing import Any
 import pandas as pd
 import numpy as np
 import loader as ld
@@ -51,15 +52,17 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
 
     # Find all users who rated this book
     book_readers = dataset_lowercase['User-ID'][dataset_lowercase['ISBN'] == book_isbn.lower()]
-    book_readers = book_readers.tolist()
-    book_readers = np.unique(book_readers)
-    
-    if len(book_readers) == 0:
+    list_book_readers = book_readers.tolist()
+    del book_readers
+
+    list_book_readers = np.unique(list_book_readers)
+
+    if len(list_book_readers) == 0:
         print(f"No ratings found for book with ISBN {book_isbn}.")
         return pd.DataFrame(columns=['book', 'corr', 'avg_rating'])
     
     # Get all books rated by these users
-    books_of_readers = dataset_lowercase[dataset_lowercase['User-ID'].isin(book_readers)]
+    books_of_readers = dataset_lowercase[dataset_lowercase['User-ID'].isin(list_book_readers)]
     
     # Count ratings per book
     number_of_rating_per_book = books_of_readers.groupby(['Book-Title']).agg('count').reset_index()
@@ -68,20 +71,20 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     books_to_compare = number_of_rating_per_book['Book-Title'][
         number_of_rating_per_book['User-ID'] >= min_ratings_threshold
     ]
-    books_to_compare = books_to_compare.tolist()
-    
-    if len(books_to_compare) <= 1:  # Only the target book or no books
-        print(f"Insufficient data to generate recommendations (only {len(books_to_compare)} books with {min_ratings_threshold}+ ratings).")
+    list_books_to_compare = books_to_compare.tolist()
+    del books_to_compare
+
+    if len(list_books_to_compare) <= 1:  # Only the target book or no books
+        print(f"Insufficient data to generate recommendations (only {len(list_books_to_compare)} books with {min_ratings_threshold}+ ratings).")
         return pd.DataFrame(columns=['book', 'corr', 'avg_rating'])
     
     # Filter ratings data
     ratings_data_raw = books_of_readers[['User-ID', 'Book-Rating', 'Book-Title']][
-        books_of_readers['Book-Title'].isin(books_to_compare)
+        books_of_readers['Book-Title'].isin(list_books_to_compare)
     ]
     
     # Group by User and Book and compute mean (handles multiple ratings by same user)
-    ratings_data_raw_nodup = ratings_data_raw.groupby(['User-ID', 'Book-Title'])['Book-Rating'].mean()
-    ratings_data_raw_nodup = ratings_data_raw_nodup.to_frame().reset_index()
+    ratings_data_raw_nodup = ratings_data_raw.groupby(['User-ID', 'Book-Title'])['Book-Rating'].mean().to_frame()
     
     # Pivot to create user-book rating matrix
     dataset_for_corr = ratings_data_raw_nodup.pivot(

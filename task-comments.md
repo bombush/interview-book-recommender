@@ -86,3 +86,5 @@ Data quality fixes:
 - unique (use ISBN for uniqueness)
 - group multiple book editions together under a "work-ID". This will need some heuristics as well as manual classification for some books
 
+### 2024-10-25
+Note: ISBN is not guaranteed to be unique!
