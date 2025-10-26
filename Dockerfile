@@ -1,0 +1,16 @@
+# install requirements, setup environment, etc.
+FROM python:3.11-slim
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# Copy application code
+COPY . .
+
+# Set the entry point for the container
+ENTRYPOINT ["./entrypoint.sh"]
