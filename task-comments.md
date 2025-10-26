@@ -130,3 +130,7 @@ I choose to go back to grouping by Book-Title and accept inaccuracies.
 Results of the model grouped by Book-Title look more useful.
 
 Playing around with Docker for the CLI app.
+
+Building Streamlit frontend
+
+Note: fitering out the implicit ratings might exclude some books

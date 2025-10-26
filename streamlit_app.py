@@ -49,7 +49,7 @@ def main():
 
     matches: pd.DataFrame | None = None
 
-    if st.button("Search", type="primary"):
+    if st.button("Search", type="primary") or query is not "":
         matches, by_isbn = search_books(books, query)
         ss['matches'] = matches
 
@@ -63,20 +63,20 @@ def main():
         if choice:
             selected_isbn = choice.split("(")[-1].rstrip(")").strip()
 
-    # If we have a selected ISBN, run recommender
-    if ss['book_selectbox'] is not "":
-        selected_isbn = ss['book_selectbox'].split("(")[-1].rstrip(")").strip()
-        with st.spinner("Finding similar books..."):
-            recs = rec.find_correlated_books_by_isbn(selected_isbn, min_ratings_threshold=min_ratings_threshold)
+        # If we have a selected ISBN, run recommender
+        if ss['book_selectbox'] is not "":
+            selected_isbn = ss['book_selectbox'].split("(")[-1].rstrip(")").strip()
+            with st.spinner("Finding similar books..."):
+                recs = rec.find_correlated_books_by_isbn(selected_isbn, min_ratings_threshold=min_ratings_threshold)
 
-        if recs is None or recs.empty:
-            st.warning("No similar books found.")
-            return
+            if recs is None or recs.empty:
+                st.warning("No similar books found.")
+                return
 
-        # Show recommendations table (book title and score); limit to top_n
-        show_cols = [c for c in ["book", "corr", "avg_rating"] if c in recs.columns]
-        st.subheader("Recommendations")
-        st.dataframe(recs[show_cols].sort_values(show_cols[1] if len(show_cols) > 1 else show_cols[0], ascending=False).head(top_n), use_container_width=True)
+            # Show recommendations table (book title and score); limit to top_n
+            show_cols = [c for c in ["book", "corr", "avg_rating"] if c in recs.columns]
+            st.subheader("Recommendations")
+            st.dataframe(recs[show_cols].sort_values(show_cols[1] if len(show_cols) > 1 else show_cols[0], ascending=False).head(top_n), use_container_width=True)
 
 
 if __name__ == "__main__":

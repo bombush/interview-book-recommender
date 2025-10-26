@@ -35,9 +35,10 @@ def find_by_isbn(dataset_lowercase: pd.DataFrame, book_isbn: str, min_ratings_th
     # Get the book title (use first match if multiple editions, but ISBN should be unique)
     # @TODO: iloc is deprecated, fix
     target_book_title = target_book.iloc[0]['Book-Title']
+    print(f"Finding recommendations for book: '{target_book_title}' by {target_book['Book-Author'].values[0]}")
 
     # Find all users who rated this book
-    book_readers = dataset_lowercase['User-ID'][(dataset_lowercase['Book-Title'] == target_book_title)& (dataset_lowercase['Book-Author'] == target_book['Book-Author'].values[0].lower())]
+    book_readers = dataset_lowercase['User-ID'][(dataset_lowercase['Book-Title'] == target_book_title) & (dataset_lowercase['Book-Author'] == target_book['Book-Author'].values[0])]
     book_readers.drop_duplicates(inplace=True)
 
     book_readers = np.unique(book_readers)
