@@ -128,3 +128,5 @@ Normalize hyphens/whitespace once on load for both ratings and books (e.g., book
 Experiments with grouping by ISBN resulted in not useful model because there's not enough data.
 I choose to go back to grouping by Book-Title and accept inaccuracies.
 Results of the model grouped by Book-Title look more useful.
+
+Playing around with Docker for the CLI app.
