@@ -123,3 +123,8 @@ Downcast integer columns (e.g., User-ID to int32) and consider categoricals for 
 Better ISBN handling:
 Normalize hyphens/whitespace once on load for both ratings and books (e.g., books['ISBN'] = books['ISBN'].str.replace('-', '').str.strip() and same for ratings) if your inputs vary in formatting.
 ```
+
+### 2024-10-26
+Experiments with grouping by ISBN resulted in not useful model because there's not enough data.
+I choose to go back to grouping by Book-Title and accept inaccuracies.
+Results of the model grouped by Book-Title look more useful.

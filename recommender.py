@@ -55,7 +55,8 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     # @TODO: try to find book by BookTitle and Author if ISBN not found
 
     # Find all users who rated this book
-    book_readers = dataset_lowercase['User-ID'][dataset_lowercase['ISBN'] == book_isbn.lower()]
+    book_readers = dataset_lowercase['User-ID'][(dataset_lowercase['Book-Title'] == target_book_title)& (dataset_lowercase['Book-Author'] == target_book['Book-Author'].values[0].lower())]
+    
     # @TODO: why tolist here?
     list_book_readers = book_readers.tolist()
     del book_readers
@@ -116,8 +117,11 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     ratings = ratings_data_raw_nodup.groupby('Book-Title')['Book-Rating'].mean().fillna(0)
 
     final_df = pd.DataFrame(data={'book': titles, 'corr': correlations_df.values})
+
     final_df =final_df.merge(right=ratings, left_on='book', how='left', right_on='Book-Title')
+    final_df.rename(columns={'Book-Rating': 'avg_rating'}, inplace=True)
     final_df= final_df.dropna(subset=['corr'])
+
     print(final_df.head())
 
     return final_df
