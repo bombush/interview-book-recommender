@@ -16,9 +16,12 @@ def prepare_dataset() -> pd.DataFrame:
     books = ld.load_books()
     
     # Merge ratings with book information
+    # @TODO: ISBN is not guaranteed to be unique (but we assume it is here)
     dataset = pd.merge(ratings, books, on=['ISBN'])
-    dataset_lowercase = dataset.apply(lambda x: x.str.lower() if x.dtype == 'object' else x)
-    return dataset_lowercase
+    dataset['Book-Title'] = dataset['Book-Title'].str.lower()
+    dataset['Book-Author'] = dataset['Book-Author'].str.lower()
+    dataset['ISBN'] = dataset['ISBN'].str.lower()
+    return dataset
 
 def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8) -> pd.DataFrame:
     """
@@ -46,12 +49,14 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
         return pd.DataFrame(columns=['book', 'corr', 'avg_rating'])
     
     # Get the book title (use first match if multiple editions, but ISBN should be unique)
+    # @TODO: iloc is deprecated, fix
     target_book_title = target_book.iloc[0]['Book-Title']
 
     # @TODO: try to find book by BookTitle and Author if ISBN not found
 
     # Find all users who rated this book
     book_readers = dataset_lowercase['User-ID'][dataset_lowercase['ISBN'] == book_isbn.lower()]
+    # @TODO: why tolist here?
     list_book_readers = book_readers.tolist()
     del book_readers
 
@@ -106,13 +111,15 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     book_titles = []
     correlations = []
     avgrating = []
-    
+
+    # @TODO optimize using corrwith    
     for book_title in list(dataset_of_other_books.columns.values):
         book_titles.append(book_title)
         corr_value = dataset_for_corr[target_book_title].corr(dataset_of_other_books[book_title])
         correlations.append(corr_value)
         
-        mean = (ratings_data_raw[ratings_data_raw['Book-Title'] == book_title]
+        # @TODO: optimize: if the ratings are guaranteed to be ordered, we can just take the mean directly from the DF before the loop
+        mean = (ratings_data_raw_nodup[ratings_data_raw_nodup['Book-Title'] == book_title]
                 .groupby('Book-Title')['Book-Rating'].mean())
         avgrating.append(mean[book_title] if book_title in mean.index else 0)
     
@@ -122,7 +129,7 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
         columns=['book', 'corr', 'avg_rating']
     )
     
-    # Remove rows with NaN correlations and sort
+    # Remove rows with NaN correlations
     corr_df = corr_df.dropna(subset=['corr'])
     
     return corr_df

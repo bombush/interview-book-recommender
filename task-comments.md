@@ -88,3 +88,38 @@ Data quality fixes:
 
 ### 2024-10-25
 Note: ISBN is not guaranteed to be unique!
+
+Copilot optimization Suggestions:
+```
+Removed the whole-DataFrame lowercasing pass and only normalized the text columns we actually need.
+Replaced the per-column correlation loop with a vectorized correlation using Pandas’ corrwith.
+Avoided counting all columns when computing popularity; used groupby.size() to compute the rating count faster.
+Precomputed average ratings once (outside the loop).
+Removed unnecessary copies and ad-hoc conversions; ensured the result is sorted by correlation.
+
+Highlights:
+
+Targeted normalization: only Book-Title and Book-Author are lowercased.
+ISBN comparison uses a simple strip (no lowercasing) and matches the original ISBN column exactly.
+Vectorized correlation:
+Before: one-by-one correlation in a Python loop.
+Now: dataset_for_corr.corrwith(dataset_for_corr[target_book_title]) for all columns at once.
+Popularity threshold computed with groupby('Book-Title')['User-ID'].size() for speed.
+Average ratings computed once via ratings_data_raw.groupby('Book-Title')['Book-Rating'].mean() and merged.
+Output sorted by correlation descending.
+```
+
+Further optimization suggestions
+```
+Further optimizations you can consider
+Cache the prepared dataset:
+If you call find_correlated_books_by_isbn repeatedly, memoize prepare_dataset() (e.g., with functools.lru_cache(maxsize=1)) so the merge and normalization aren’t repeated each time.
+Sparse matrices for large data:
+Convert the pivot (user × book) to a sparse matrix and use cosine similarity (scikit-learn’s pairwise cosine_similarity on CSR) for speed and memory efficiency.
+Precompute offline:
+Build a precomputed item–item similarity matrix once (with a popularity floor), serialize it, and do O(1) lookups at runtime.
+Reduce memory pressure:
+Downcast integer columns (e.g., User-ID to int32) and consider categoricals for Book-Title if you keep doing merges/groupbys on it.
+Better ISBN handling:
+Normalize hyphens/whitespace once on load for both ratings and books (e.g., books['ISBN'] = books['ISBN'].str.replace('-', '').str.strip() and same for ratings) if your inputs vary in formatting.
+```
