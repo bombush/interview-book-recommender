@@ -23,25 +23,9 @@ def prepare_dataset() -> pd.DataFrame:
     dataset['ISBN'] = dataset['ISBN'].str.lower()
     return dataset
 
-def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8) -> pd.DataFrame:
-    """
-    Recommend books similar to the given book based on user rating correlations.
-    
-    This function finds users who rated the specified book, then computes correlation
-    between that book's ratings and ratings of other books by the same users.
-    
-    Args:
-        book_isbn: ISBN of the book to find recommendations for
-        min_ratings_threshold: Minimum number of ratings required for a book to be considered (default: 8)
-        top_n: Number of top recommendations to return (default: 10)
-    
-    Returns:
-        DataFrame with columns ['book', 'corr', 'avg_rating'] sorted by correlation (descending)
-        Returns empty DataFrame if book not found or insufficient data
-    """
-    dataset_lowercase = prepare_dataset()
-    
-    # Find the book by ISBN
+
+def find_by_isbn(dataset_lowercase: pd.DataFrame, book_isbn: str, min_ratings_threshold: int = 8) -> pd.DataFrame:
+     # Find the book by ISBN
     target_book = dataset_lowercase[dataset_lowercase['ISBN'] == book_isbn.lower()]
     
     if target_book.empty:
@@ -119,3 +103,25 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     print(final_df.head())
 
     return final_df
+
+# refactored function to satisfy the API for the CLI app
+def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8) -> pd.DataFrame:
+    """
+    Recommend books similar to the given book based on user rating correlations.
+    
+    This function finds users who rated the specified book, then computes correlation
+    between that book's ratings and ratings of other books by the same users.
+    
+    Args:
+        book_isbn: ISBN of the book to find recommendations for
+        min_ratings_threshold: Minimum number of ratings required for a book to be considered (default: 8)
+        top_n: Number of top recommendations to return (default: 10)
+    
+    Returns:
+        DataFrame with columns ['book', 'corr', 'avg_rating'] sorted by correlation (descending)
+        Returns empty DataFrame if book not found or insufficient data
+    """
+    dataset_lowercase = prepare_dataset()
+    return find_by_isbn(dataset_lowercase, book_isbn, min_ratings_threshold)
+    
+   
