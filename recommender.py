@@ -88,8 +88,10 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
         books_of_readers['Book-Title'].isin(list_books_to_compare)
     ]
     
+    print(ratings_data_raw.head())
     # Group by User and Book and compute mean (handles multiple ratings by same user)
-    ratings_data_raw_nodup = ratings_data_raw.groupby(['User-ID', 'Book-Title'])['Book-Rating'].mean().to_frame()
+    # @TODO: grouping by Book-Title can result in grouping together different books with the same title. Should group by ISBN instead.
+    ratings_data_raw_nodup = ratings_data_raw.groupby(['User-ID', 'Book-Title'])['Book-Rating'].mean().to_frame().reset_index()
     
     # Pivot to create user-book rating matrix
     dataset_for_corr = ratings_data_raw_nodup.pivot(
@@ -103,33 +105,19 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
         print(f"Target book '{target_book_title}' not found in correlation dataset.")
         return pd.DataFrame(columns=['book', 'corr', 'avg_rating'])
     
-    # Create dataset without the target book
-    dataset_of_other_books = dataset_for_corr.copy(deep=False)
-    dataset_of_other_books.drop([target_book_title], axis=1, inplace=True)
-    
-    # Compute correlations
-    book_titles = []
-    correlations = []
-    avgrating = []
+    target_book = dataset_for_corr[target_book_title]
+    dataset_for_corr.drop([target_book_title], axis=1, inplace=True)    
+   
 
-    # @TODO optimize using corrwith    
-    for book_title in list(dataset_of_other_books.columns.values):
-        book_titles.append(book_title)
-        corr_value = dataset_for_corr[target_book_title].corr(dataset_of_other_books[book_title])
-        correlations.append(corr_value)
-        
-        # @TODO: optimize: if the ratings are guaranteed to be ordered, we can just take the mean directly from the DF before the loop
-        mean = (ratings_data_raw_nodup[ratings_data_raw_nodup['Book-Title'] == book_title]
-                .groupby('Book-Title')['Book-Rating'].mean())
-        avgrating.append(mean[book_title] if book_title in mean.index else 0)
-    
-    # Create final dataframe
-    corr_df = pd.DataFrame(
-        list(zip(book_titles, correlations, avgrating)), 
-        columns=['book', 'corr', 'avg_rating']
-    )
-    
-    # Remove rows with NaN correlations
-    corr_df = corr_df.dropna(subset=['corr'])
-    
-    return corr_df
+    # Compute correlations
+    correlations_df = dataset_for_corr.corrwith(target_book, axis=0)
+
+    titles = correlations_df.index.tolist()
+    ratings = ratings_data_raw_nodup.groupby('Book-Title')['Book-Rating'].mean().fillna(0)
+
+    final_df = pd.DataFrame(data={'book': titles, 'corr': correlations_df.values})
+    final_df =final_df.merge(right=ratings, left_on='book', how='left', right_on='Book-Title')
+    final_df= final_df.dropna(subset=['corr'])
+    print(final_df.head())
+
+    return final_df
