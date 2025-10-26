@@ -52,23 +52,18 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     # @TODO: iloc is deprecated, fix
     target_book_title = target_book.iloc[0]['Book-Title']
 
-    # @TODO: try to find book by BookTitle and Author if ISBN not found
-
     # Find all users who rated this book
     book_readers = dataset_lowercase['User-ID'][(dataset_lowercase['Book-Title'] == target_book_title)& (dataset_lowercase['Book-Author'] == target_book['Book-Author'].values[0].lower())]
-    
-    # @TODO: why tolist here?
-    list_book_readers = book_readers.tolist()
-    del book_readers
+    book_readers.drop_duplicates(inplace=True)
 
-    list_book_readers = np.unique(list_book_readers)
+    book_readers = np.unique(book_readers)
 
-    if len(list_book_readers) == 0:
+    if len(book_readers) == 0:
         print(f"No ratings found for book with ISBN {book_isbn}.")
         return pd.DataFrame(columns=['book', 'corr', 'avg_rating'])
     
     # Get all books rated by these users
-    books_of_readers = dataset_lowercase[dataset_lowercase['User-ID'].isin(list_book_readers)]
+    books_of_readers = dataset_lowercase[dataset_lowercase['User-ID'].isin(book_readers)]
     
     # Count ratings per book
     number_of_rating_per_book = books_of_readers.groupby(['Book-Title']).agg('count').reset_index()
@@ -91,7 +86,6 @@ def find_correlated_books_by_isbn(book_isbn: str, min_ratings_threshold: int = 8
     
     print(ratings_data_raw.head())
     # Group by User and Book and compute mean (handles multiple ratings by same user)
-    # @TODO: grouping by Book-Title can result in grouping together different books with the same title. Should group by ISBN instead.
     ratings_data_raw_nodup = ratings_data_raw.groupby(['User-ID', 'Book-Title'])['Book-Rating'].mean().to_frame().reset_index()
     
     # Pivot to create user-book rating matrix
