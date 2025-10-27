@@ -49,7 +49,7 @@ def main():
 
     matches: pd.DataFrame | None = None
 
-    if st.button("Search", type="primary") or query is not "":
+    if st.button("Search", type="primary") or query != "":
         matches, by_isbn = search_books(books, query)
         ss['matches'] = matches
 
@@ -64,7 +64,7 @@ def main():
             selected_isbn = choice.split("(")[-1].rstrip(")").strip()
 
         # If we have a selected ISBN, run recommender
-        if ss['book_selectbox'] is not "":
+        if ss['book_selectbox'] != "":
             selected_isbn = ss['book_selectbox'].split("(")[-1].rstrip(")").strip()
             with st.spinner("Finding similar books..."):
                 recs = rec.find_correlated_books_by_isbn(selected_isbn, min_ratings_threshold=min_ratings_threshold)

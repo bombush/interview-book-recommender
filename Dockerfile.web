@@ -6,11 +6,13 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+COPY entrypoint.web.sh .
+RUN chmod +x entrypoint.web.sh
 
 # Copy application code
 COPY . .
 
+EXPOSE 8501
+
 # Set the entry point for the container
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.web.sh"]

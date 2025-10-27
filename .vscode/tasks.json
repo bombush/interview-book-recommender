@@ -1,0 +1,93 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Docker Build: CLI",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "build",
+                "-f",
+                "Dockerfile.cli",
+                "-t",
+                "book-recommender-cli",
+                "."
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Docker Build: Web",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "build",
+                "-f",
+                "Dockerfile.web",
+                "-t",
+                "book-recommender-web",
+                "."
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Docker Run: CLI",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "run",
+                "-it",
+                "--rm",
+                "book-recommender-cli"
+            ],
+            "problemMatcher": [],
+            "dependsOn": ["Docker Build: CLI"],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Docker Run: Web",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "run",
+                "-it",
+                "--rm",
+                "-p",
+                "8501:8501",
+                "book-recommender-web"
+            ],
+            "problemMatcher": [],
+            "dependsOn": ["Docker Build: Web"],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            }
+        }
+    ]
+}
