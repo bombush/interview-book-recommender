@@ -12,17 +12,6 @@ def get_user_yes_no_input(prompt: str) -> bool:
             return response == 'y'
         print("Invalid input. Please enter Y or N.")
 
-def search_books_by_title(books: pd.DataFrame, search_term: str) -> pd.DataFrame:
-    """Search for books by title (case-insensitive)."""
-    contains_mask = books['Book-Title'].str.contains(
-        search_term, case=False, na=False, regex=False
-    )
-    return books[contains_mask]
-
-def search_books_by_isbn(books: pd.DataFrame, isbn: str) -> pd.DataFrame:
-    """Search for books by ISBN."""
-    return books[books['ISBN'] == isbn]
-
 def display_books(books: pd.DataFrame, columns: Optional[list[str]]):
     """Display books in a readable format."""
     if columns is None:
@@ -33,6 +22,17 @@ def display_books(books: pd.DataFrame, columns: Optional[list[str]]):
     print(books[columns])
     pd.reset_option("display.max_colwidth")
     pd.reset_option("display.max_rows")
+
+def search_books_by_title(books: pd.DataFrame, search_term: str) -> pd.DataFrame:
+    """Search for books by title (case-insensitive)."""
+    contains_mask = books['Book-Title'].str.contains(
+        search_term, case=False, na=False, regex=False
+    )
+    return books[contains_mask]
+
+def search_books_by_isbn(books: pd.DataFrame, isbn: str) -> pd.DataFrame:
+    """Search for books by ISBN."""
+    return books[books['ISBN'] == isbn]
 
 def is_isbn(input_str: str) -> bool:
     """Check if the input string is a valid ISBN (10 or 13 digits)."""
@@ -77,7 +77,6 @@ def handle_book_search(books: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
     display_books(matching_books, None)
     return True, matching_books
 
-# @TODO: why is this a series? Should be a DataFrame with one row.
 def get_similar_books(book: pd.Series) -> pd.DataFrame:
     """Get list of books similar to the given book."""
     print(type(book))
