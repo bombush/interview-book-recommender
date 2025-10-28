@@ -138,3 +138,7 @@ Note: fitering out the implicit ratings might exclude some books
 
 ### 2024-10-27
 I spent and unholy amount of time on getting the app exposed on AWS. Turns out that I need to add a TCP outboud rule specifically for the port I want to expose. "All traffic" alone does not suffice.
+
+### 2024-10-28
+Now this is crazy: Dockerfile for web version was not working at all because of CRLF line endings.
+Found out after a few hair-pulling hours. Reminder to self: don't develop on Windows :)
