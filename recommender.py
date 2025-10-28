@@ -101,7 +101,7 @@ def find_by_isbn(dataset_lowercase: pd.DataFrame, book_isbn: str, min_ratings_th
     final_df.rename(columns={'Book-Rating': 'avg_rating'}, inplace=True)
     final_df= final_df.dropna(subset=['corr'])
 
-    print(final_df.head())
+    #print(final_df.head())
 
     return final_df
 

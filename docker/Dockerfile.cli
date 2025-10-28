@@ -6,11 +6,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.cli.sh .
-RUN chmod +x entrypoint.cli.sh
+COPY ./docker/entrypoint.cli.sh /usr/local/bin/entrypoint.cli.sh
+RUN chmod +x /usr/local/bin/entrypoint.cli.sh
 
 # Copy application code
 COPY . .
 
 # Set the entry point for the container
-ENTRYPOINT ["./cli/entrypoint.cli.sh"]
+ENTRYPOINT ["entrypoint.cli.sh"]
