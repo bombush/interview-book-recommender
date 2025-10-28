@@ -6,8 +6,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.aws.sh .
-RUN chmod +x entrypoint.aws.sh
+COPY ./docker/entrypoint.aws.sh /usr/local/bin/entrypoint.aws.sh
+RUN chmod +x /usr/local/bin/entrypoint.aws.sh
 
 # Copy application code
 COPY . .
@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8501
 
 # Set the entry point for the container
-ENTRYPOINT ["./entrypoint.aws.sh"]
+ENTRYPOINT ["entrypoint.aws.sh"]
