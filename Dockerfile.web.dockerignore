@@ -1,0 +1,10 @@
+__pycache__
+.git
+.mypy_cache
+.Stribro
+.venv
+.vscode
+Downloads
+
+.dockerignore
+.gitignore
