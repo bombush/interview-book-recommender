@@ -1,13 +1,20 @@
+import os
 import streamlit as st
 from streamlit import session_state as ss
+
+import tracemalloc
 
 import pandas as pd
 
 import loader as ld
 import recommender as rec
 
-st.set_page_config(page_title="Book Recommender", page_icon="📚", layout="wide")
 
+_PROFILE = os.environ.get("BOOKRECOMMENDER_PROFILE", "0").lower() in ("1", "true", "yes")
+if(_PROFILE):
+    tracemalloc.start()
+
+st.set_page_config(page_title="Book Recommender", page_icon="📚", layout="wide")
 
 @st.cache_data(show_spinner=True)
 def get_books() -> pd.DataFrame:
@@ -47,6 +54,9 @@ def main():
 
     books = get_books()
 
+    if _PROFILE:
+        print("PROFILE MALLOC: ", tracemalloc.get_traced_memory())
+
     matches: pd.DataFrame | None = None
 
     if st.button("Search", type="primary") or query != "":
@@ -68,6 +78,9 @@ def main():
             selected_isbn = ss['book_selectbox'].split("(")[-1].rstrip(")").strip()
             with st.spinner("Finding similar books..."):
                 recs = rec.find_correlated_books_by_isbn(selected_isbn, min_ratings_threshold=min_ratings_threshold)
+
+                if _PROFILE:
+                    print("PROFILE_MALLOC 2: ", tracemalloc.get_traced_memory())
 
             if recs is None or recs.empty:
                 st.warning("No similar books found.")
