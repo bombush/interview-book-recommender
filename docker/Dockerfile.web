@@ -6,13 +6,16 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.web.sh .
-RUN chmod +x entrypoint.web.sh
-
 # Copy application code
 COPY . .
 
+COPY ./docker/entrypoint.web.sh entrypoint.web.sh
+RUN chmod +x entrypoint.web.sh
+
 EXPOSE 8501
+
+RUN apt-get update && apt-get install -y dos2unix
+RUN dos2unix entrypoint.web.sh
 
 # Set the entry point for the container
 ENTRYPOINT ["./entrypoint.web.sh"]

@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Starting web entrypoint script..."
 
 python3 install/install.py
 
